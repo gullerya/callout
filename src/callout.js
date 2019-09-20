@@ -2,32 +2,20 @@ export {
 	callout
 }
 
-function callout(elements) {
-	if (!elements || !elements.length) {
-		console.error('invalid or empty array of elements to call out over');
+function callout(targets) {
+	//	create valid array of targets
+	const ea = (Array.isArray(targets) ? targets : [targets]).filter(e => e && e.nodeType);
+
+	//	validate
+	if (!ea.length) {
+		console.error('no (valid) targets to call out over');
 		return;
 	}
 
-	for (let i = 0, l = elements.length; i < l; i++) {
-		const e = elements[i];
-		ensureElementSeen(e);
-
-		const r = getScreenRect(e);
-		putCalloutVilon(r);
-	}
-}
-
-function ensureElementSeen(e) {
-	e.scrollIntoView({ behavior: 'smooth' });
-}
-
-function getScreenRect(e) {
-	return e.getBoundingClientRect();
-}
-
-function putCalloutVilon(r) {
-	const calloutElement = document.createElement('gullerya-callout');
-	document.body.appendChild(calloutElement);
+	//	start callout flow
+	const calloute = document.createElement('call-out');
+	document.body.appendChild(calloute);
+	calloute.callout(ea);
 }
 
 const template = document.createElement('template');
@@ -41,6 +29,7 @@ template.innerHTML = `
 			right: 0;
 			bottom: 0;
 			z-index: 1000;
+			overflow: hidden;
 		}
 
 		.man-pan {
@@ -70,8 +59,8 @@ template.innerHTML = `
 		.mask-window {
 			x: calc(50% - 12px);
 			y: calc(50% - 12px);
-			width: 24px;
-			height: 24px;
+			width: 16px;
+			height: 16px;
 			rx: 8px;
 			transition: all 200ms;
 		}
@@ -91,10 +80,38 @@ template.innerHTML = `
 	</div>
 `;
 
-customElements.define('gullerya-callout', class extends HTMLElement {
+customElements.define('call-out', class extends HTMLElement {
 	constructor() {
 		super();
 		this.attachShadow({ mode: 'open' })
 			.appendChild(template.content.cloneNode(true));
+	}
+
+	callout(targets) {
+		if (!targets || !targets.length || targets.some(e => !e || !e.nodeType)) {
+			throw new Error('invalid targets to call out over');
+		}
+
+		this.ensureElementSeen(targets[0]);
+
+		const
+			r = this.getScreenRect(targets[0]),
+			av = {
+				x: (r.x - 4) + 'px',
+				y: (r.y - 4) + 'px',
+				width: (Math.max(16, r.width) + 8) + 'px',
+				height: (Math.max(16, r.height) + 8) + 'px'
+			},
+			m = this.shadowRoot.querySelector('.mask-window');
+
+		Object.assign(m.style, av);
+	}
+
+	ensureElementSeen(e) {
+		e.scrollIntoView();
+	}
+
+	getScreenRect(e) {
+		return e.getBoundingClientRect();
 	}
 });
