@@ -28,15 +28,30 @@ template.innerHTML = `
 			left: 0;
 			right: 0;
 			bottom: 0;
-			z-index: 1000;
+			z-index: 9999;
 			overflow: hidden;
 		}
 
 		.man-pan {
 			position: absolute;
-			top: 50px;
-			left: 500px;
-			color: #000;
+			display: flex;
+			justify-content: center;
+			margin: 48px 0;
+			width: 100%;
+			cursor: default;
+			user-select: none;
+		}
+
+		.button {
+			flex: 0 0 32px;
+			height: 32px;
+			margin: 0 8px;
+			border-radius: 50%;
+			background-color: #fff;
+			font: 24px monospace;
+			display: flex;
+			align-items: center;
+			justify-content: center;
 		}
 
 		.callout-vilon {
@@ -62,7 +77,7 @@ template.innerHTML = `
 			width: 16px;
 			height: 16px;
 			rx: 8px;
-			transition: all 200ms;
+			transition: all 400ms ease;
 		}
 	</style>
 
@@ -76,7 +91,9 @@ template.innerHTML = `
 		<rect x="0" y="0" width="100%" height="100%" mask="url(#callout-mask)"/>
 	</svg>
 	<div class="man-pan">
-		Some text here
+		<div class="button">&lt;</div>
+		<div class="button">&gt;</div>
+		<div class="button">X</div>
 	</div>
 `;
 
