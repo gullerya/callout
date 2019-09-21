@@ -1,10 +1,25 @@
-export {
-	callout
-}
+const
+	ENTRIES_LIST = Symbol('entries.list'),
+	CURRENT_INDEX = Symbol('current.entry'),
+	NEXT_METHOD = Symbol('next.method'),
+	PREV_METHOD = Symbol('prev.method'),
+	MOVE_TO_METHOD = Symbol('move.to.method');
 
-function callout(targets) {
+export function callout(entries) {
 	//	create valid array of targets
-	const ea = (Array.isArray(targets) ? targets : [targets]).filter(e => e && e.nodeType);
+	const ea = (Array.isArray(entries) ? entries : [entries])
+		.filter(e => e && e.target && e.target.nodeType === Node.ELEMENT_NODE && e.content)
+		.map(e => {
+			const re = { target: e.target };
+			if (e.content.nodeType === Node.DOCUMENT_FRAGMENT_NODE) {
+				re.content = e.content;
+			} else {
+				const tmpDF = document.createDocumentFragment();
+				tmpDF.appendChild(document.createTextNode(e.content));
+				re.content = tmpDF;
+			}
+			return re;
+		});
 
 	//	validate
 	if (!ea.length) {
@@ -13,9 +28,18 @@ function callout(targets) {
 	}
 
 	//	start callout flow
-	const calloute = document.createElement('call-out');
-	document.body.appendChild(calloute);
-	calloute.callout(ea);
+	const
+		co = document.createElement('call-out'),
+		po = window.getComputedStyle(document.documentElement).overflow;
+	document.documentElement.style.overflow = 'hidden';
+
+	document.documentElement.appendChild(co);
+	co[ENTRIES_LIST] = ea;
+	co[NEXT_METHOD]();
+
+	co.addEventListener('close', () => {
+		document.documentElement.style.overflow = po;
+	});
 }
 
 const template = document.createElement('template');
@@ -36,21 +60,32 @@ template.innerHTML = `
 			position: absolute;
 			display: flex;
 			justify-content: center;
-			margin: 48px 0;
 			width: 100%;
 			cursor: default;
 			user-select: none;
 		}
 
+		.man-pan.above {
+			top: 48px;
+		}
+
+		.man-pan.below {
+			bottom: 48px;
+		}
+
 		.button {
-			flex: 0 0 32px;
-			height: 32px;
+			flex: 0 0 64px;
+			height: 48px;
 			margin: 0 8px;
-			border-radius: 50%;
+			border: 1px solid #646464;
+			border-radius: 8px;
+			box-sizing: border-box;
+			box-shadow: inset 0 16px 24px 0px rgba(96, 96, 96, 0.4);
 			background-color: #fff;
-			font: 24px monospace;
+			font-size: 24px;
+			font-weight: bold;
+			line-height: 48px;
 			display: flex;
-			align-items: center;
 			justify-content: center;
 		}
 
@@ -68,7 +103,6 @@ template.innerHTML = `
 			width: 100%;
 			height: 100%;
 			fill: #aaa;
-			opacity: 0.7;
 		}
 
 		.mask-window {
@@ -91,28 +125,85 @@ template.innerHTML = `
 		<rect x="0" y="0" width="100%" height="100%" mask="url(#callout-mask)"/>
 	</svg>
 	<div class="man-pan">
-		<div class="button">&lt;</div>
-		<div class="button">&gt;</div>
-		<div class="button">X</div>
+		<div class="button prev">&#11207;</div>
+		<div class="button next">&#11208;</div>
+		<div class="button close">&times;</div>
 	</div>
 `;
 
 customElements.define('call-out', class extends HTMLElement {
 	constructor() {
 		super();
-		this.attachShadow({ mode: 'open' })
-			.appendChild(template.content.cloneNode(true));
+		const s = this.attachShadow({ mode: 'open' });
+		s.appendChild(template.content.cloneNode(true));
+		s.querySelector('.button.next').addEventListener('click', () => {
+			this[NEXT_METHOD]();
+		});
+		s.querySelector('.button.prev').addEventListener('click', () => {
+			this[PREV_METHOD]();
+		});
+		s.querySelector('.button.close').addEventListener('click', () => {
+			this.parentNode.removeChild(this);
+			this.dispatchEvent(new Event('close'));
+		});
+		this[CURRENT_INDEX] = -1;
 	}
 
-	callout(targets) {
-		if (!targets || !targets.length || targets.some(e => !e || !e.nodeType)) {
-			throw new Error('invalid targets to call out over');
+	[NEXT_METHOD]() {
+		const
+			entries = this[ENTRIES_LIST],
+			nextIndex = this[CURRENT_INDEX] + 1;
+
+		if (!entries || !entries.length) {
+			console.error('no entries list');
+			return;
+		}
+		if (nextIndex >= entries.length) {
+			console.error('should NOT "next" after last');
+			return;
 		}
 
-		this.ensureElementSeen(targets[0]);
+		this[MOVE_TO_METHOD](entries[nextIndex]);
+		this[CURRENT_INDEX] = nextIndex;
+		if (nextIndex === 0) {
+			this.classList.add('first');
+		} else {
+			this.classList.remove('first');
+		}
+		if (nextIndex === entries.length - 1) {
+			this.classList.add('last');
+		}
+	}
+
+	[PREV_METHOD]() {
+		const
+			entries = this[ENTRIES_LIST],
+			prevIndex = this[CURRENT_INDEX] - 1;
+
+		if (!entries || !entries.length) {
+			console.error('no entries list');
+			return;
+		}
+		if (prevIndex < 0) {
+			console.error('should NOT "prev" before first');
+			return;
+		}
+
+		this[MOVE_TO_METHOD](entries[prevIndex]);
+		this[CURRENT_INDEX] = prevIndex;
+		if (prevIndex === 0) {
+			this.classList.add('first');
+		}
+		if (prevIndex === entries.length - 2) {
+			this.classList.remove('last');
+		}
+	}
+
+	[MOVE_TO_METHOD](entry) {
+		this.ensureElementSeen(entry.target);
 
 		const
-			r = this.getScreenRect(targets[0]),
+			r = this.getScreenRect(entry.target),
 			av = {
 				x: (r.x - 4) + 'px',
 				y: (r.y - 4) + 'px',
@@ -122,6 +213,16 @@ customElements.define('call-out', class extends HTMLElement {
 			m = this.shadowRoot.querySelector('.mask-window');
 
 		Object.assign(m.style, av);
+
+		const
+			mp = this.shadowRoot.querySelector('.man-pan');
+		if (r.bottom > document.documentElement.clientHeight / 2) {
+			mp.classList.remove('below')
+			mp.classList.add('above');
+		} else {
+			mp.classList.remove('above')
+			mp.classList.add('below');
+		}
 	}
 
 	ensureElementSeen(e) {

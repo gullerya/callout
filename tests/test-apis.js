@@ -30,7 +30,10 @@ suite.addTest({ name: 'test A' }, test => {
 	divC.textContent = 'some thing to call out over';
 	divB.appendChild(divC);
 
-	callout(divC);
+	callout({
+		target: divC,
+		content: 'something'
+	});
 
 	test.pass();
 });
