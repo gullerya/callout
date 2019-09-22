@@ -74,17 +74,17 @@ template.innerHTML = `
 		}
 
 		.button {
-			flex: 0 0 64px;
-			height: 48px;
+			flex: 0 0 48px;
+			height: 32px;
 			margin: 0 8px;
 			border: 1px solid #646464;
 			border-radius: 8px;
 			box-sizing: border-box;
 			box-shadow: inset 0 16px 24px 0px rgba(96, 96, 96, 0.4);
 			background-color: #fff;
-			font-size: 24px;
+			font-size: 18px;
 			font-weight: bold;
-			line-height: 48px;
+			line-height: 32px;
 			display: flex;
 			justify-content: center;
 		}
