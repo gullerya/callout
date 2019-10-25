@@ -10,11 +10,12 @@ suite.addTest({ name: 'test A' }, test => {
 		divC = document.createElement('div');
 
 	divA.style.position = 'absolute';
-	divA.style.top = '1000px';
+	divA.style.top = '100px';
 	divA.style.left = '100px';
 	divA.style.width = '400px';
 	divA.style.height = '200px';
 	divA.style.overflow = 'auto';
+	divA.style.outline = '1px solid red';
 	document.body.appendChild(divA);
 
 	divB.style.position = 'absolute';
@@ -23,17 +24,25 @@ suite.addTest({ name: 'test A' }, test => {
 	divB.style.width = '200px';
 	divB.style.height = '100px';
 	divB.style.overflow = 'auto';
-	divA.appendChild(divB);
+	divB.style.outline = '1px solid blue';
+	document.body.appendChild(divB);
 
 	divC.style.position = 'absolute';
 	divC.style.top = '200px';
 	divC.textContent = 'some thing to call out over';
-	divB.appendChild(divC);
+	divC.style.outline = '1px solid green';
+	document.body.appendChild(divC);
 
-	callout({
-		target: divC,
+	callout([{
+		target: divA,
 		content: 'something'
-	});
+	}, {
+		target: divB,
+		content: 'something else'
+	}, {
+		target: divC,
+		content: 'another one'
+	}]);
 
 	test.pass();
 });

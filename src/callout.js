@@ -1,6 +1,7 @@
-import { spotlight, SHAPES } from './libs/spotlight.min.js';
+import { spotlight } from './libs/spotlight.min.js';
 
 const
+	SPOTLIGHT_KEY = Symbol('spotlight.key'),
 	ENTRIES_LIST = Symbol('entries.list'),
 	CURRENT_INDEX = Symbol('current.entry'),
 	NEXT_METHOD = Symbol('next.method'),
@@ -35,13 +36,12 @@ export function callout(entries) {
 		po = window.getComputedStyle(document.documentElement).overflow;
 	document.documentElement.style.overflow = 'hidden';
 
-	document.documentElement.appendChild(co);
-	co[ENTRIES_LIST] = ea;
-	co[NEXT_METHOD]();
-
 	co.addEventListener('close', () => {
 		document.documentElement.style.overflow = po;
 	});
+
+	co[ENTRIES_LIST] = ea;
+	document.documentElement.appendChild(co);
 }
 
 const template = document.createElement('template');
@@ -65,6 +65,7 @@ template.innerHTML = `
 			width: 100%;
 			cursor: default;
 			user-select: none;
+			transition: all 1s;
 		}
 
 		.man-pan.above {
@@ -104,17 +105,20 @@ customElements.define('call-out', class extends HTMLElement {
 		super();
 		const s = this.attachShadow({ mode: 'open' });
 		s.appendChild(template.content.cloneNode(true));
-		s.querySelector('.button.next').addEventListener('click', () => {
-			this[NEXT_METHOD]();
-		});
-		s.querySelector('.button.prev').addEventListener('click', () => {
-			this[PREV_METHOD]();
-		});
-		s.querySelector('.button.close').addEventListener('click', () => {
-			this.parentNode.removeChild(this);
-			this.dispatchEvent(new Event('close'));
-		});
+		s.querySelector('.button.next').addEventListener('click', () => this[NEXT_METHOD]());
+		s.querySelector('.button.prev').addEventListener('click', () => this[PREV_METHOD]());
+		s.querySelector('.button.close').addEventListener('click', () => this.close());
 		this[CURRENT_INDEX] = -1;
+	}
+
+	connectedCallback() {
+		this[NEXT_METHOD]();
+	}
+
+	close() {
+		this[SPOTLIGHT_KEY].close();
+		this.parentNode.removeChild(this);
+		this.dispatchEvent(new Event('close'));
 	}
 
 	[NEXT_METHOD]() {
@@ -170,13 +174,17 @@ customElements.define('call-out', class extends HTMLElement {
 	[MOVE_TO_METHOD](entry) {
 		this.ensureElementSeen(entry.target);
 
-		const
-			r = this.getScreenRect(entry.target);
+		const r = this.getScreenRect(entry.target);
 
-		Object.assign(m.style, av);
+		//	position spotlight
+		if (this[SPOTLIGHT_KEY]) {
+			this[SPOTLIGHT_KEY].target = entry.target;
+		} else {
+			this[SPOTLIGHT_KEY] = spotlight(entry.target);
+		}
 
-		const
-			mp = this.shadowRoot.querySelector('.man-pan');
+		//	position management panel
+		const mp = this.shadowRoot.querySelector('.man-pan');
 		if (r.bottom > document.documentElement.clientHeight / 2) {
 			mp.classList.remove('below')
 			mp.classList.add('above');

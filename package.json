@@ -30,7 +30,7 @@
     "build": "node ./build/tools/build-dist.js"
   },
   "dependencies": {
-    "@gullerya/spotlight": "^1.0.0"
+    "@gullerya/spotlight": "^1.0.1"
   },
   "devDependencies": {
     "eslint": "^6.5.1",
