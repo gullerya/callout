@@ -90,42 +90,8 @@ template.innerHTML = `
 			display: flex;
 			justify-content: center;
 		}
-
-		.callout-vilon {
-			position: absolute;
-			top: 0;
-			left: 0;
-			width: 100%;
-			height: 100%;
-		}
-
-		.mask-overlay {
-			x: 0;
-			y: 0;
-			width: 100%;
-			height: 100%;
-			fill: #aaa;
-		}
-
-		.mask-window {
-			x: calc(50% - 12px);
-			y: calc(50% - 12px);
-			width: 16px;
-			height: 16px;
-			rx: 8px;
-			transition: all 400ms ease;
-		}
 	</style>
 
-	<svg class="callout-vilon">
-		<defs>
-			<mask id="callout-mask">
-				<rect class="mask-overlay"/>
-				<rect class="mask-window"/>
-			</mask>
-		</defs>
-		<rect x="0" y="0" width="100%" height="100%" mask="url(#callout-mask)"/>
-	</svg>
 	<div class="man-pan">
 		<div class="button prev">&#11207;</div>
 		<div class="button next">&#11208;</div>
@@ -205,14 +171,7 @@ customElements.define('call-out', class extends HTMLElement {
 		this.ensureElementSeen(entry.target);
 
 		const
-			r = this.getScreenRect(entry.target),
-			av = {
-				x: (r.x - 4) + 'px',
-				y: (r.y - 4) + 'px',
-				width: (Math.max(16, r.width) + 8) + 'px',
-				height: (Math.max(16, r.height) + 8) + 'px'
-			},
-			m = this.shadowRoot.querySelector('.mask-window');
+			r = this.getScreenRect(entry.target);
 
 		Object.assign(m.style, av);
 

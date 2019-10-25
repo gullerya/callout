@@ -23,6 +23,6 @@ fs.writeFileSync(
 process.stdout.write('\t\t\t\x1B[32mOK\x1B[0m' + os.EOL);
 
 process.stdout.write('installing "spotlight" lib...');
-fsExtra.copySync('./node_modules/@gullerya/spotlight/dist/spotlight.min.js', './src/spotlight.min.js');
-fsExtra.copySync('./node_modules/@gullerya/spotlight/dist/spotlight.min.js', './dist/spotlight.min.js');
+fsExtra.copySync('./node_modules/@gullerya/spotlight/dist/spotlight.min.js', './src/libs/spotlight.min.js');
+fsExtra.copySync('./node_modules/@gullerya/spotlight/dist/spotlight.min.js', './dist/libs/spotlight.min.js');
 process.stdout.write('\t\x1B[32mOK\x1B[0m' + os.EOL);

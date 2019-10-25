@@ -1,4 +1,4 @@
-import { spotlight, SHAPES } from './spotlight.min.js';
+import { spotlight, SHAPES } from './libs/spotlight.min.js';
 
 const
 	ENTRIES_LIST = Symbol('entries.list'),
