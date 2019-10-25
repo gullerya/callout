@@ -1,3 +1,5 @@
+import { spotlight, SHAPES } from './spotlight.min.js';
+
 const
 	ENTRIES_LIST = Symbol('entries.list'),
 	CURRENT_INDEX = Symbol('current.entry'),
