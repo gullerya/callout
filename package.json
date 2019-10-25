@@ -26,7 +26,7 @@
     "url": "https://github.com/gullerya/callout"
   },
   "scripts": {
-    "eslint": "eslint -c ./build/.eslintrc.json ./src/**/*.js",
+    "eslint": "eslint -c ./build/.eslintrc.json --ignore-path ./build/.eslintignore ./src/**/*.js",
     "build": "node ./build/tools/build-dist.js"
   },
   "dependencies": {
