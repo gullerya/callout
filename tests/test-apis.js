@@ -3,7 +3,7 @@ import { callout } from '../../dist/callout.js';
 
 const suite = createSuite({ name: 'Testing callout APIs' });
 
-suite.addTest({ name: 'test A' }, test => {
+suite.runTest({ name: 'test A' }, test => {
 	const
 		divA = document.createElement('div'),
 		divB = document.createElement('div'),
@@ -43,8 +43,4 @@ suite.addTest({ name: 'test A' }, test => {
 		target: divC,
 		content: 'another one'
 	}]);
-
-	test.pass();
 });
-
-suite.run();
