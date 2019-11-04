@@ -7,22 +7,33 @@
 		toplevel: true
 	};
 
+process.stdout.write('\x1B[32mSTARTING...\x1B[0m' + os.EOL);
+
 process.stdout.write('cleaning "dist"...');
 fsExtra.emptyDirSync('./dist');
 process.stdout.write('\t\t\x1B[32mOK\x1B[0m' + os.EOL);
 
-process.stdout.write('copying "src" to "dist"...');
-fsExtra.copySync('./src', './dist');
+process.stdout.write('cleaning "libs"...');
+fsExtra.emptyDirSync('./src/libs');
+process.stdout.write('\t\t\x1B[32mOK\x1B[0m' + os.EOL);
+
+process.stdout.write('installing "spotlight"...');
+fsExtra.copySync('./node_modules/@gullerya/spotlight/dist/spotlight.min.js', './src/libs/spotlight.min.js');
 process.stdout.write('\t\x1B[32mOK\x1B[0m' + os.EOL);
 
-process.stdout.write('minifying...');
+process.stdout.write('installing "tooltip"...');
+fsExtra.copySync('./node_modules/@gullerya/tooltip/dist/tooltip.min.js', './src/libs/tooltip.min.js');
+process.stdout.write('\t\t\x1B[32mOK\x1B[0m' + os.EOL);
+
+process.stdout.write('building "dist"...');
+fsExtra.copySync('./src', './dist');
+process.stdout.write('\t\t\x1B[32mOK\x1B[0m' + os.EOL);
+
+process.stdout.write('- minifying...');
 fs.writeFileSync(
 	'./dist/callout.min.js',
 	uglifyES.minify(fs.readFileSync('./dist/callout.js', { encoding: 'utf8' }), minifyOptions).code
 );
 process.stdout.write('\t\t\t\x1B[32mOK\x1B[0m' + os.EOL);
 
-process.stdout.write('installing "spotlight" lib...');
-fsExtra.copySync('./node_modules/@gullerya/spotlight/dist/spotlight.min.js', './src/libs/spotlight.min.js');
-fsExtra.copySync('./node_modules/@gullerya/spotlight/dist/spotlight.min.js', './dist/libs/spotlight.min.js');
-process.stdout.write('\t\x1B[32mOK\x1B[0m' + os.EOL);
+process.stdout.write('\x1B[32mDONE\x1B[0m' + os.EOL);

@@ -3,7 +3,7 @@ import { callout } from '../../dist/callout.js';
 
 const suite = createSuite({ name: 'Testing callout APIs' });
 
-suite.runTest({ name: 'test A' }, test => {
+suite.runTest({ name: 'test A' }, async test => {
 	const
 		divA = document.createElement('div'),
 		divB = document.createElement('div'),
@@ -32,6 +32,8 @@ suite.runTest({ name: 'test A' }, test => {
 	divC.textContent = 'some thing to call out over';
 	divC.style.outline = '1px solid green';
 	document.body.appendChild(divC);
+
+	await test.waitMillis(3000);
 
 	callout([{
 		target: divA,

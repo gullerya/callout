@@ -1,7 +1,9 @@
 import { spotlight } from './libs/spotlight.min.js';
+import { tooltip, POSITIONS } from './libs/tooltip.min.js';
 
 const
 	SPOTLIGHT_KEY = Symbol('spotlight.key'),
+	TOOLTIP_KEY = Symbol('tooltip.key'),
 	ENTRIES_LIST = Symbol('entries.list'),
 	CURRENT_INDEX = Symbol('current.entry'),
 	NEXT_METHOD = Symbol('next.method'),
@@ -78,25 +80,32 @@ template.innerHTML = `
 
 		.button {
 			flex: 0 0 48px;
-			height: 32px;
-			margin: 0 8px;
-			border: 1px solid #646464;
-			border-radius: 8px;
-			box-sizing: border-box;
-			box-shadow: inset 0 16px 24px 0px rgba(96, 96, 96, 0.4);
+			height: 48px;
+			margin: 0 12px;
+			border-radius: 50%;
 			background-color: #fff;
-			font-size: 18px;
-			font-weight: bold;
-			line-height: 32px;
+			font-size: 1.4em;
 			display: flex;
+			align-items: center;
 			justify-content: center;
+			box-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
+		}
+
+		.button.close {
+			line-height: 48px;
 		}
 	</style>
 
 	<div class="man-pan">
-		<div class="button prev">&#11207;</div>
-		<div class="button next">&#11208;</div>
-		<div class="button close">&times;</div>
+		<div id="callout-button-prev" class="button">&#11207;</div>
+		<!--tool-tip data-target-id="callout-button-prev">
+			<slot name="prev-label">PREVIOUS</slot>
+		</tool-tip-->
+		<div id="callout-button-next" class="button">&#11208;</div>
+		<!--tool-tip data-target-id="callout-button-next">
+			<slot name="next-label">NEXT</slot>
+		</tool-tip-->
+		<div class="button close">&#128473;</div>
 	</div>
 `;
 
@@ -105,18 +114,25 @@ customElements.define('call-out', class extends HTMLElement {
 		super();
 		const s = this.attachShadow({ mode: 'open' });
 		s.appendChild(template.content.cloneNode(true));
-		s.querySelector('.button.next').addEventListener('click', () => this[NEXT_METHOD]());
-		s.querySelector('.button.prev').addEventListener('click', () => this[PREV_METHOD]());
+		s.querySelector('#callout-button-next').addEventListener('click', () => this[NEXT_METHOD]());
+		s.querySelector('#callout-button-prev').addEventListener('click', () => this[PREV_METHOD]());
 		s.querySelector('.button.close').addEventListener('click', () => this.close());
 		this[CURRENT_INDEX] = -1;
 	}
 
 	connectedCallback() {
+		this[SPOTLIGHT_KEY] = spotlight();
+
+		this[TOOLTIP_KEY] = tooltip();
+		this[TOOLTIP_KEY].position = POSITIONS.far;
+		this[TOOLTIP_KEY].classList.add('light');
+
 		this[NEXT_METHOD]();
 	}
 
 	close() {
 		this[SPOTLIGHT_KEY].close();
+		this[TOOLTIP_KEY].remove();
 		this.parentNode.removeChild(this);
 		this.dispatchEvent(new Event('close'));
 	}
@@ -176,12 +192,13 @@ customElements.define('call-out', class extends HTMLElement {
 
 		const r = this.getScreenRect(entry.target);
 
-		//	position spotlight
-		if (this[SPOTLIGHT_KEY]) {
-			this[SPOTLIGHT_KEY].target = entry.target;
-		} else {
-			this[SPOTLIGHT_KEY] = spotlight(entry.target);
-		}
+		//	position spotlight and tooltip
+		this[TOOLTIP_KEY].hide();
+		this[SPOTLIGHT_KEY]
+			.moveTo(entry.target)
+			.then(() => {
+				this[TOOLTIP_KEY].show(this[SPOTLIGHT_KEY], entry.content.cloneNode(true));
+			});
 
 		//	position management panel
 		const mp = this.shadowRoot.querySelector('.man-pan');
