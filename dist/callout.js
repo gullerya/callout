@@ -8,7 +8,9 @@ const
 	CURRENT_INDEX = Symbol('current.entry'),
 	NEXT_METHOD = Symbol('next.method'),
 	PREV_METHOD = Symbol('prev.method'),
-	MOVE_TO_METHOD = Symbol('move.to.method');
+	MOVE_TO_METHOD = Symbol('move.to.method'),
+	ON_FIRST_METHOD = Symbol('on.first.method'),
+	ON_LAST_METHOD = Symbol('on.last.method');
 
 export function callout(entries) {
 	//	create valid array of targets
@@ -83,6 +85,7 @@ template.innerHTML = `
 			height: 48px;
 			margin: 0 12px;
 			border-radius: 50%;
+			color: #666;
 			background-color: #fff;
 			font-size: 1.4em;
 			display: flex;
@@ -94,18 +97,26 @@ template.innerHTML = `
 		.button.close {
 			line-height: 48px;
 		}
+
+		.button.disabled {
+			color: #ccc;
+			background-color: #ddd;
+		}
 	</style>
 
 	<div class="man-pan">
-		<div id="callout-button-prev" class="button">&#11207;</div>
-		<!--tool-tip data-target-id="callout-button-prev">
-			<slot name="prev-label">PREVIOUS</slot>
-		</tool-tip-->
-		<div id="callout-button-next" class="button">&#11208;</div>
-		<!--tool-tip data-target-id="callout-button-next">
-			<slot name="next-label">NEXT</slot>
-		</tool-tip-->
+		<div class="button prev">&#11207;</div>
+		<tool-tip data-target-class="prev">
+			<slot name="prev-label">Previous</slot>
+		</tool-tip>
+		<div class="button next">&#11208;</div>
+		<tool-tip data-target-class="next">
+			<slot name="next-label">Next</slot>
+		</tool-tip>
 		<div class="button close">&#128473;</div>
+		<tool-tip data-target-class="close">
+			<slot name="close-label">Close</slot>
+		</tool-tip>
 	</div>
 `;
 
@@ -114,19 +125,17 @@ customElements.define('call-out', class extends HTMLElement {
 		super();
 		const s = this.attachShadow({ mode: 'open' });
 		s.appendChild(template.content.cloneNode(true));
-		s.querySelector('#callout-button-next').addEventListener('click', () => this[NEXT_METHOD]());
-		s.querySelector('#callout-button-prev').addEventListener('click', () => this[PREV_METHOD]());
-		s.querySelector('.button.close').addEventListener('click', () => this.close());
+		s.querySelector('.next').addEventListener('click', () => this[NEXT_METHOD]());
+		s.querySelector('.prev').addEventListener('click', () => this[PREV_METHOD]());
+		s.querySelector('.close').addEventListener('click', () => this.close());
 		this[CURRENT_INDEX] = -1;
 	}
 
 	connectedCallback() {
 		this[SPOTLIGHT_KEY] = spotlight();
-
 		this[TOOLTIP_KEY] = tooltip();
 		this[TOOLTIP_KEY].position = POSITIONS.far;
 		this[TOOLTIP_KEY].classList.add('light');
-
 		this[NEXT_METHOD]();
 	}
 
@@ -151,16 +160,8 @@ customElements.define('call-out', class extends HTMLElement {
 			return;
 		}
 
-		this[MOVE_TO_METHOD](entries[nextIndex]);
 		this[CURRENT_INDEX] = nextIndex;
-		if (nextIndex === 0) {
-			this.classList.add('first');
-		} else {
-			this.classList.remove('first');
-		}
-		if (nextIndex === entries.length - 1) {
-			this.classList.add('last');
-		}
+		this[MOVE_TO_METHOD](entries[nextIndex]);
 	}
 
 	[PREV_METHOD]() {
@@ -177,14 +178,8 @@ customElements.define('call-out', class extends HTMLElement {
 			return;
 		}
 
-		this[MOVE_TO_METHOD](entries[prevIndex]);
 		this[CURRENT_INDEX] = prevIndex;
-		if (prevIndex === 0) {
-			this.classList.add('first');
-		}
-		if (prevIndex === entries.length - 2) {
-			this.classList.remove('last');
-		}
+		this[MOVE_TO_METHOD](entries[prevIndex]);
 	}
 
 	[MOVE_TO_METHOD](entry) {
@@ -208,6 +203,31 @@ customElements.define('call-out', class extends HTMLElement {
 		} else {
 			mp.classList.remove('above')
 			mp.classList.add('below');
+		}
+
+		//	set management buttons statuses
+		this[ON_FIRST_METHOD](this[CURRENT_INDEX] === 0);
+		this[ON_LAST_METHOD](this[CURRENT_INDEX] === this[ENTRIES_LIST].length - 1);
+	}
+
+	[ON_LAST_METHOD](status) {
+		const sr = this.shadowRoot;
+		if (status) {
+			sr.querySelector('.next').classList.add('disabled');
+			sr.querySelector('[data-target-class="next"]').classList.add('disabled');
+		} else {
+			sr.querySelector('.next').classList.remove('disabled');
+			sr.querySelector('[data-target-class="next"]').classList.remove('disabled');
+		}
+	}
+
+	[ON_FIRST_METHOD](status) {
+		if (status) {
+			this.shadowRoot.querySelector('.prev').classList.add('disabled');
+			this.shadowRoot.querySelector('[data-target-class="prev"]').classList.add('disabled');
+		} else {
+			this.shadowRoot.querySelector('.prev').classList.remove('disabled');
+			this.shadowRoot.querySelector('[data-target-class="prev"]').classList.remove('disabled');
 		}
 	}
 

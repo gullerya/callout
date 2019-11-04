@@ -1,6 +1,6 @@
 {
   "name": "@gullerya/callout",
-  "version": "0.0.4",
+  "version": "0.1.0",
   "description": "callout engine",
   "keywords": [
     "explanation",
@@ -34,7 +34,7 @@
   },
   "dependencies": {
     "@gullerya/spotlight": "^1.4.0",
-    "@gullerya/tooltip": "^0.2.1"
+    "@gullerya/tooltip": "^1.0.1"
   },
   "devDependencies": {
     "eslint": "^6.6.0",

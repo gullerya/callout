@@ -11,11 +11,11 @@ __`callout`__ provides an engine to run call out flows on the web pages
 Main aspects:
 * TODO
 
-#### Support matrix: ![CHROME](https://github.com/gullerya/object-observer/raw/master/docs/browser_icons/chrome.png)<sub>61+</sub> | ![FIREFOX](https://github.com/gullerya/object-observer/raw/master/docs/browser_icons/firefox.png)<sub>60+</sub> | ![EDGE](https://github.com/gullerya/object-observer/raw/master/docs/browser_icons/edge.png)<sub>16+</sub>
+#### Support matrix: ![CHROME](https://github.com/gullerya/callout/raw/master/docs/browser_icons/chrome.png)<sub>61+</sub> | ![FIREFOX](https://github.com/gullerya/callout/raw/master/docs/browser_icons/firefox.png)<sub>60+</sub> | ![EDGE](https://github.com/gullerya/callout/raw/master/docs/browser_icons/edge.png)<sub>16+</sub>
 
-#### Last versions (full changelog is [here](https://github.com/gullerya/object-observer/blob/master/docs/changelog.md))
+#### Last versions (full changelog is [here](https://github.com/gullerya/callout/blob/master/docs/changelog.md))
 
-* __0.0.1__
+* __0.1.0__
   * initial take
 
 TODO
