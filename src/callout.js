@@ -10,7 +10,11 @@ const
 	PREV_METHOD = Symbol('prev.method'),
 	MOVE_TO_METHOD = Symbol('move.to.method'),
 	ON_FIRST_METHOD = Symbol('on.first.method'),
-	ON_LAST_METHOD = Symbol('on.last.method');
+	ON_LAST_METHOD = Symbol('on.last.method'),
+	KEYS_PROCESSOR_METHOD = Symbol('keys.processor.method'),
+	CLOSE_KEY_CODES = ['Escape'],
+	NEXT_KEY_CODES = ['ArrowRight', 'ArrowUp', 'Space', 'Enter', 'NumpadEnter'],
+	PREV_KEY_CODES = ['ArrowLeft', 'ArrowDown'];
 
 export function callout(entries) {
 	//	create valid array of targets
@@ -67,9 +71,10 @@ template.innerHTML = `
 			display: flex;
 			justify-content: center;
 			width: 100%;
+			font: 1.4em sans-serif;
 			cursor: default;
 			user-select: none;
-			transition: all 1s;
+			transition: top 1s;
 		}
 
 		.man-pan.above {
@@ -77,7 +82,7 @@ template.innerHTML = `
 		}
 
 		.man-pan.below {
-			bottom: 48px;
+			top: calc(100% - 96px);
 		}
 
 		.button {
@@ -87,7 +92,6 @@ template.innerHTML = `
 			border-radius: 50%;
 			color: #666;
 			background-color: #fff;
-			font-size: 1.4em;
 			display: flex;
 			align-items: center;
 			justify-content: center;
@@ -102,20 +106,36 @@ template.innerHTML = `
 			color: #ccc;
 			background-color: #ddd;
 		}
+
+		.position {
+			color: #fff;
+			display: flex;
+			align-items: center;
+		}
+
+		tool-tip {
+			font-size: 0.64em;
+		}
 	</style>
 
 	<div class="man-pan">
 		<div class="button prev">&#11207;</div>
 		<tool-tip data-target-class="prev">
-			<slot name="prev-label">Previous</slot>
+			<slot name="prev-label">Previous (ArrowLeft)</slot>
 		</tool-tip>
+
+		<div class="position">
+			<span class="current"></span>&nbsp;/&nbsp;<span class="total"></span>
+		</div>
+
 		<div class="button next">&#11208;</div>
 		<tool-tip data-target-class="next">
-			<slot name="next-label">Next</slot>
+			<slot name="next-label">Next (ArrowRight, Space, Enter)</slot>
 		</tool-tip>
+
 		<div class="button close">&#128473;</div>
 		<tool-tip data-target-class="close">
-			<slot name="close-label">Close</slot>
+			<slot name="close-label">Close (Escape)</slot>
 		</tool-tip>
 	</div>
 `;
@@ -127,7 +147,7 @@ customElements.define('call-out', class extends HTMLElement {
 		s.appendChild(template.content.cloneNode(true));
 		s.querySelector('.next').addEventListener('click', () => this[NEXT_METHOD]());
 		s.querySelector('.prev').addEventListener('click', () => this[PREV_METHOD]());
-		s.querySelector('.close').addEventListener('click', () => this.close());
+		s.querySelector('.close').addEventListener('click', () => this.remove());
 		this[CURRENT_INDEX] = -1;
 	}
 
@@ -136,13 +156,17 @@ customElements.define('call-out', class extends HTMLElement {
 		this[TOOLTIP_KEY] = tooltip();
 		this[TOOLTIP_KEY].position = POSITIONS.far;
 		this[TOOLTIP_KEY].classList.add('light');
+		this.shadowRoot.querySelector('.total').textContent = this[ENTRIES_LIST].length;
+		this.tabIndex = 1;
+		this.focus();
+		this.addEventListener('keydown', this[KEYS_PROCESSOR_METHOD]);
 		this[NEXT_METHOD]();
 	}
 
-	close() {
-		this[SPOTLIGHT_KEY].close();
+	disconnectedCallback() {
+		this.removeEventListener('keydown', this[KEYS_PROCESSOR_METHOD]);
 		this[TOOLTIP_KEY].remove();
-		this.parentNode.removeChild(this);
+		this[SPOTLIGHT_KEY].close();
 		this.dispatchEvent(new Event('close'));
 	}
 
@@ -152,11 +176,9 @@ customElements.define('call-out', class extends HTMLElement {
 			nextIndex = this[CURRENT_INDEX] + 1;
 
 		if (!entries || !entries.length) {
-			console.error('no entries list');
 			return;
 		}
 		if (nextIndex >= entries.length) {
-			console.error('should NOT "next" after last');
 			return;
 		}
 
@@ -170,11 +192,9 @@ customElements.define('call-out', class extends HTMLElement {
 			prevIndex = this[CURRENT_INDEX] - 1;
 
 		if (!entries || !entries.length) {
-			console.error('no entries list');
 			return;
 		}
 		if (prevIndex < 0) {
-			console.error('should NOT "prev" before first');
 			return;
 		}
 
@@ -205,6 +225,9 @@ customElements.define('call-out', class extends HTMLElement {
 			mp.classList.add('below');
 		}
 
+		//	set slide current / total
+		this.shadowRoot.querySelector('.current').textContent = this[CURRENT_INDEX] + 1;
+
 		//	set management buttons statuses
 		this[ON_FIRST_METHOD](this[CURRENT_INDEX] === 0);
 		this[ON_LAST_METHOD](this[CURRENT_INDEX] === this[ENTRIES_LIST].length - 1);
@@ -228,6 +251,16 @@ customElements.define('call-out', class extends HTMLElement {
 		} else {
 			this.shadowRoot.querySelector('.prev').classList.remove('disabled');
 			this.shadowRoot.querySelector('[data-target-class="prev"]').classList.remove('disabled');
+		}
+	}
+
+	[KEYS_PROCESSOR_METHOD](event) {
+		if (CLOSE_KEY_CODES.includes(event.code)) {
+			this.remove();
+		} else if (NEXT_KEY_CODES.includes(event.code)) {
+			this[NEXT_METHOD]();
+		} else if (PREV_KEY_CODES.includes(event.code)) {
+			this[PREV_METHOD]();
 		}
 	}
 

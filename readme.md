@@ -9,11 +9,17 @@
 __`callout`__ provides an engine to run call out flows on the web pages
 
 Main aspects:
-* TODO
+* uses [@gullerya/spotlight](https://www.npmjs.com/package/@gullerya/spotlight) for the visual spotlighting and [@gullerya/tooltip](https://www.npmjs.com/package/@gullerya/tooltip) for the textual/content hints
+* simple single API recieves an Array of entries, each one having the target element and it's description, and runs the flow
+* no HTML touches needed for integration, yet it is responsibility of the hosting application to collect and order the elements to call out over
 
 #### Support matrix: ![CHROME](https://github.com/gullerya/callout/raw/master/docs/browser_icons/chrome.png)<sub>61+</sub> | ![FIREFOX](https://github.com/gullerya/callout/raw/master/docs/browser_icons/firefox.png)<sub>60+</sub> | ![EDGE](https://github.com/gullerya/callout/raw/master/docs/browser_icons/edge.png)<sub>16+</sub>
 
 #### Last versions (full changelog is [here](https://github.com/gullerya/callout/blob/master/docs/changelog.md))
+
+* __1.0.0__
+  * implemented [Issue #1](https://github.com/gullerya/callout/issues/1) - support for a keyboard navigation
+  * implemented [Issue #2](https://github.com/gullerya/callout/issues/2) - added hint for which slide of how many the user is located on
 
 * __0.1.0__
   * initial take
