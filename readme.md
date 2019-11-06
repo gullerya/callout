@@ -19,7 +19,7 @@ Main aspects:
 
 #### Last versions (full changelog is [here](https://github.com/gullerya/callout/blob/master/docs/changelog.md))
 
-* __1.1.0__
+* __1.1.1__
   * implemented [Issue #3](https://github.com/gullerya/callout/issues/3) - in RTL pages the management strip layout remains the same
   * implemented [Issue #4](https://github.com/gullerya/callout/issues/4) - shadow of the spotlight is darker now
   * implemented [Issue #5](https://github.com/gullerya/callout/issues/5) - template, document-fragment and plain text are all handled correctly and verified
