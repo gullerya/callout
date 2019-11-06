@@ -13,16 +13,12 @@ process.stdout.write('cleaning "dist"...');
 fsExtra.emptyDirSync('./dist');
 process.stdout.write('\t\t\x1B[32mOK\x1B[0m' + os.EOL);
 
-process.stdout.write('cleaning "libs"...');
-fsExtra.emptyDirSync('./src/libs');
-process.stdout.write('\t\t\x1B[32mOK\x1B[0m' + os.EOL);
-
 process.stdout.write('installing "spotlight"...');
-fsExtra.copySync('./node_modules/@gullerya/spotlight/dist/spotlight.min.js', './src/libs/spotlight.min.js');
+fsExtra.copySync('./node_modules/@gullerya/spotlight/dist/spotlight.min.js', './src/spotlight.min.js');
 process.stdout.write('\t\x1B[32mOK\x1B[0m' + os.EOL);
 
 process.stdout.write('installing "tooltip"...');
-fsExtra.copySync('./node_modules/@gullerya/tooltip/dist/tooltip.min.js', './src/libs/tooltip.min.js');
+fsExtra.copySync('./node_modules/@gullerya/tooltip/dist/tooltip.min.js', './src/tooltip.min.js');
 process.stdout.write('\t\t\x1B[32mOK\x1B[0m' + os.EOL);
 
 process.stdout.write('building "dist"...');

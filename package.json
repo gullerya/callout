@@ -33,7 +33,7 @@
     "test": "node ./node_modules/just-test/dist/tests-runner/run-tests.js --config=./tests/tests-runner-config.json"
   },
   "dependencies": {
-    "@gullerya/spotlight": "^1.4.0",
+    "@gullerya/spotlight": "^1.5.0",
     "@gullerya/tooltip": "^1.0.1"
   },
   "devDependencies": {

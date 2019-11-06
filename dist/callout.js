@@ -1,5 +1,5 @@
-import { spotlight } from './libs/spotlight.min.js';
-import { tooltip, POSITIONS } from './libs/tooltip.min.js';
+import { spotlight, SHAPES } from './spotlight.min.js';
+import { tooltip, POSITIONS } from './tooltip.min.js';
 
 const
 	SPOTLIGHT_KEY = Symbol('spotlight.key'),
@@ -14,22 +14,36 @@ const
 	KEYS_PROCESSOR_METHOD = Symbol('keys.processor.method'),
 	CLOSE_KEY_CODES = ['Escape'],
 	NEXT_KEY_CODES = ['ArrowRight', 'ArrowUp', 'Space', 'Enter', 'NumpadEnter'],
-	PREV_KEY_CODES = ['ArrowLeft', 'ArrowDown'];
+	PREV_KEY_CODES = ['ArrowLeft', 'ArrowDown'],
+	DEFAULT_ENTRY_SETTINGS = Object.freeze({
+		shape: SHAPES.circle
+	});
 
 export function callout(entries) {
 	//	create valid array of targets
 	const ea = (Array.isArray(entries) ? entries : [entries])
-		.filter(e => e && e.target && e.target.nodeType === Node.ELEMENT_NODE && e.content)
+		.filter(e => e && e.target && e.target.nodeType === Node.ELEMENT_NODE && e.target.parentElement &&
+			e.content)
+		.sort((e1, e2) => e1.order > e2.order
+			? 1
+			: (e1.order < e2.order
+				? -1
+				: 0))
 		.map(e => {
-			const re = { target: e.target };
+			let tmpDF;
 			if (e.content.nodeType === Node.DOCUMENT_FRAGMENT_NODE) {
-				re.content = e.content;
+				tmpDF = e.content;
+			} else if (e.content.content && e.content.content.nodeType === Node.DOCUMENT_FRAGMENT_NODE) {
+				tmpDF = e.content.content;
 			} else {
-				const tmpDF = document.createDocumentFragment();
+				tmpDF = document.createDocumentFragment();
 				tmpDF.appendChild(document.createTextNode(e.content));
-				re.content = tmpDF;
 			}
-			return re;
+
+			return Object.assign({
+				target: e.target,
+				content: tmpDF.cloneNode(true)
+			}, DEFAULT_ENTRY_SETTINGS);
 		});
 
 	//	validate
@@ -68,6 +82,7 @@ template.innerHTML = `
 
 		.man-pan {
 			position: absolute;
+			direction: ltr;
 			display: flex;
 			justify-content: center;
 			width: 100%;
@@ -95,16 +110,18 @@ template.innerHTML = `
 			display: flex;
 			align-items: center;
 			justify-content: center;
-			box-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
+			box-shadow: 0 0 8px rgba(0, 0, 0, 0.5), inset 0 0 12px rgba(0, 128, 0, 0.75);
 		}
 
 		.button.close {
 			line-height: 48px;
+			box-shadow: 0 0 8px rgba(0, 0, 0, 0.5), inset 0 0 12px rgba(128, 0, 0, 0.75);
 		}
 
 		.button.disabled {
 			color: #ccc;
 			background-color: #ddd;
+			box-shadow: none;
 		}
 
 		.position {
