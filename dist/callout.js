@@ -19,38 +19,41 @@ const
 		shape: SHAPES.circle
 	});
 
+export { SHAPES }
+
 export function callout(entries) {
-	//	create valid array of targets
-	const ea = (Array.isArray(entries) ? entries : [entries])
-		.filter(e => e && e.target && e.target.nodeType === Node.ELEMENT_NODE && e.target.parentElement &&
-			e.content)
-		.sort((e1, e2) => e1.order > e2.order
-			? 1
-			: (e1.order < e2.order
-				? -1
-				: 0))
-		.map(e => {
-			let tmpDF;
-			if (e.content.nodeType === Node.DOCUMENT_FRAGMENT_NODE) {
-				tmpDF = e.content;
-			} else if (e.content.content && e.content.content.nodeType === Node.DOCUMENT_FRAGMENT_NODE) {
-				tmpDF = e.content.content;
-			} else {
-				tmpDF = document.createDocumentFragment();
-				tmpDF.appendChild(document.createTextNode(e.content));
-			}
+	//	filter invalid entries
+	const vea = (Array.isArray(entries) ? entries : [entries])
+		.filter(e => e && e.target && e.target.nodeType === Node.ELEMENT_NODE && e.target.parentElement && e.content);
 
-			return Object.assign({
-				target: e.target,
-				content: tmpDF.cloneNode(true)
-			}, DEFAULT_ENTRY_SETTINGS);
-		});
-
-	//	validate
-	if (!ea.length) {
-		console.error('no (valid) targets to call out over');
+	//	validate as a whole
+	if (!vea.length) {
+		console.error('no valid entries to call out over');
 		return;
+	} else if (entries.length > vea.length) {
+		console.warn((entries.length - vea.length) + ' entries found invalid and will not participate in callout flow');
 	}
+
+	//	order entries
+	const oea = vea
+		.filter(e => typeof e.order === 'number' && !isNaN(e.order))
+		.sort((e1, e2) => e1.order > e2.order ? 1 : (e1.order === e2.order ? 0 : -1));
+	oea.push(...vea.filter(e => typeof e.order !== 'number' || isNaN(e.order)));
+
+	//	preprocess entries data
+	const rea = oea.map(e => {
+		let tmpDF;
+		if (e.content.nodeType === Node.DOCUMENT_FRAGMENT_NODE) {
+			tmpDF = e.content;
+		} else if (e.content.content && e.content.content.nodeType === Node.DOCUMENT_FRAGMENT_NODE) {
+			tmpDF = e.content.content;
+		} else {
+			tmpDF = document.createDocumentFragment();
+			tmpDF.appendChild(document.createTextNode(e.content));
+		}
+
+		return Object.assign({}, DEFAULT_ENTRY_SETTINGS, e, { content: tmpDF.cloneNode(true) });
+	});
 
 	//	start callout flow
 	const
@@ -62,7 +65,7 @@ export function callout(entries) {
 		document.documentElement.style.overflow = po;
 	});
 
-	co[ENTRIES_LIST] = ea;
+	co[ENTRIES_LIST] = rea;
 	document.documentElement.appendChild(co);
 }
 
@@ -76,6 +79,7 @@ template.innerHTML = `
 			left: 0;
 			right: 0;
 			bottom: 0;
+			outline: none;
 			z-index: 9999;
 			overflow: hidden;
 		}
@@ -226,11 +230,10 @@ customElements.define('call-out', class extends HTMLElement {
 
 		//	position spotlight and tooltip
 		this[TOOLTIP_KEY].hide();
-		this[SPOTLIGHT_KEY]
-			.moveTo(entry.target)
-			.then(() => {
-				this[TOOLTIP_KEY].show(this[SPOTLIGHT_KEY], entry.content.cloneNode(true));
-			});
+		this[SPOTLIGHT_KEY].shape = entry.shape;
+		this[SPOTLIGHT_KEY].moveTo(entry.target).then(() => {
+			this[TOOLTIP_KEY].show(this[SPOTLIGHT_KEY], entry.content.cloneNode(true));
+		});
 
 		//	position management panel
 		const mp = this.shadowRoot.querySelector('.man-pan');

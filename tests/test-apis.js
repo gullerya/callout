@@ -1,5 +1,5 @@
 ﻿import { createSuite } from '../../node_modules/just-test/dist/just-test.min.js'
-import { callout } from '../../dist/callout.js';
+import { callout, SHAPES } from '../../dist/callout.js';
 
 const suite = createSuite({ name: 'Testing callout APIs' });
 
@@ -50,13 +50,15 @@ suite.runTest({ name: 'test A' }, async test => {
 
 	callout([{
 		target: divA,
-		content: df
+		content: df,
+		order: 3
 	}, {
 		target: divB,
-		content: 'Div B - plain text',
-		order: 1
+		content: 'Div B - plain text'
 	}, {
 		target: divC,
-		content: t
+		content: t,
+		shape: SHAPES.oval,
+		order: 2
 	}]);
 });
