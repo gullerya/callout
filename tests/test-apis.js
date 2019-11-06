@@ -35,14 +35,28 @@ suite.runTest({ name: 'test A' }, async test => {
 
 	await test.waitMillis(3000);
 
+	const df = new DocumentFragment();
+	df.appendChild(document.createElement('span'));
+	df.firstElementChild.textContent = 'Div A - document fragment';
+
+	const t = document.createElement('template');
+	t.innerHTML = `
+		<div>
+			<span>Div C</span>
+			<br>
+			<span>template</span>
+		</div>
+	`;
+
 	callout([{
 		target: divA,
-		content: 'something'
+		content: df
 	}, {
 		target: divB,
-		content: 'something else'
+		content: 'Div B - plain text',
+		order: 1
 	}, {
 		target: divC,
-		content: 'another one'
+		content: t
 	}]);
 });
