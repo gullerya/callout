@@ -8,6 +8,8 @@
 
 __`callout`__ provides an engine to run call out flows on the web pages
 
+![](./docs/callout-flow-example.gif)
+
 Main aspects:
 * uses [@gullerya/spotlight](https://www.npmjs.com/package/@gullerya/spotlight) for the visual spotlighting and [@gullerya/tooltip](https://www.npmjs.com/package/@gullerya/tooltip) for the textual/content hints
 * simple single API recieves an Array of entries, each one having the target element and it's description, and runs the flow
