@@ -1,6 +1,6 @@
 {
   "name": "@gullerya/callout",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "description": "callout engine",
   "keywords": [
     "explanation",
@@ -18,11 +18,12 @@
   "files": [
     "dist"
   ],
-  "main": "dist/node-module/@gullerya/callout.min.js",
+  "browser": "dist/node-module/@gullerya/callout.min.js",
   "author": {
     "name": "Guller Yuri",
     "email": "gullerya@gmail.com"
   },
+  "funding": "https://paypal.me/gullerya?locale.x=en_US",
   "repository": {
     "type": "git",
     "url": "https://github.com/gullerya/callout"
@@ -33,18 +34,18 @@
     "test": "node ./node_modules/just-test/dist/tests-runner/run-tests.js --config=./tests/tests-runner-config.json"
   },
   "dependencies": {
-    "@gullerya/spotlight": "^1.5.0",
-    "@gullerya/tooltip": "^1.0.1"
+    "@gullerya/spotlight": "^1.6.0",
+    "@gullerya/tooltip": "^1.1.1"
   },
   "devDependencies": {
-    "eslint": "^6.6.0",
+    "eslint": "^6.8.0",
     "eslint-config-standard": "^14.1.0",
-    "eslint-plugin-import": "^2.18.2",
-    "eslint-plugin-node": "^10.0.0",
-    "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-standard": "^4.0.1",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-import": "^2.20.1",
+    "eslint-plugin-node": "^11.0.0",
     "fs-extra": "^8.1.0",
-    "just-test": "^1.6.0",
+    "just-test": "^2.3.0",
     "uglify-es": "^3.3.9"
   }
 }

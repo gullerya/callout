@@ -1,7 +1,7 @@
-﻿import { createSuite } from '../../node_modules/just-test/dist/just-test.min.js'
+﻿import { getSuite } from '../../node_modules/just-test/dist/just-test.min.js'
 import { callout, SHAPES } from '../../dist/callout.js';
 
-const suite = createSuite({ name: 'Testing callout APIs' });
+const suite = getSuite({ name: 'Testing callout APIs' });
 
 suite.runTest({ name: 'test A' }, async test => {
 	const
